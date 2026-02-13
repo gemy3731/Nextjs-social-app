@@ -12,7 +12,7 @@ import { useEffect, useState, useRef } from "react";
 import { styled } from "@mui/material/styles";
 import axios from "axios";
 import { User } from "@/interfaces/user.type";
-import avatarImg from "@/images/default-avatar-profile-picture-male-icon.webp";
+
 import { useFormik } from "formik";
 import * as yup from "yup";
 import { redirect } from "next/navigation";
@@ -174,7 +174,7 @@ const getUserData = () => {
             }}
           >
             <Image
-              src={userData?.photo ?? avatarImg}
+              src={userData?.photo ?? "/images/avatar.webp"}
               width={100}
               height={100}
               alt="Annonymous"
