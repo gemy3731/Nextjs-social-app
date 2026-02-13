@@ -73,6 +73,13 @@ export default function Register() {
         </Box>
       )}
       <Paper variant="elevation" square={false} elevation={1} sx={{ p: '30px', backgroundColor: '#252728',boxShadow:'2px 2px 8px #252728,-2px -2px 8px #252728' }}>
+      <Typography
+          component={"h2"}
+          variant="h4"
+          sx={{ color: "white", mb: "10px" }}
+        >
+          Register Now
+        </Typography>
         <form onSubmit={formik.handleSubmit} className='flex flex-col gap-5 text-white '>
           <TextField id="name" name='name' value={formik.values.name} onChange={formik.handleChange} label="Name..." variant="outlined" placeholder='Name' type='text' fullWidth sx={{ input: { color: 'white', "&::placeholder": { color: "gray" } } }} InputLabelProps={{ className: '!text-white' }} />
           {formik.errors.name&&formik.touched.name&&(<Typography color='error'>{formik.errors.name}</Typography>)}

@@ -75,7 +75,7 @@ export default function Login() {
           variant="h4"
           sx={{ color: "white", mb: "10px" }}
         >
-          Login Now:
+          Login Now
         </Typography>
         <form
           onSubmit={formik.handleSubmit}
@@ -118,7 +118,7 @@ export default function Login() {
             <Typography color="error">{formik.errors.password}</Typography>
           )}
           <h3 className="mt-4">
-            Don`&apos;`t have an account?
+            Don&apos;t have an account?
             <Link
               href={"/register"}
               className="text-blue-500 hover:text-blue-500 font-semibold ml-1"

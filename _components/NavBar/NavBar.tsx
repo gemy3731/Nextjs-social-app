@@ -1,147 +1,54 @@
 "use client";
-import * as React from "react";
+
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
-import MenuItem from "@mui/material/MenuItem";
-import Menu from "@mui/material/Menu";
 import MoreIcon from "@mui/icons-material/MoreVert";
 import Image from "next/image";
 import LPLogo from "@/public/images/lp-logo.png";
-import { Button } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { store } from "@/lib/Redux/Store";
 import { clearUserToken } from "@/lib/Redux/tokenSlice/TokenSlice";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import NavigationMenu  from "./NavigationMenu";
+import useNavigation from "./useNavigation";
 
 export default function NavBar() {
   const { userToken } = useSelector(
     (reduxStore: ReturnType<typeof store.getState>) =>
       reduxStore.userTokenReducer
   );
+  const [mobileMenuAnchor, setMobileMenuAnchor] = useState<null | HTMLElement>(null);
   const dispatch = useDispatch();
-  const navigate = useRouter();
+  const router = useRouter();
+  const { navigationItems } = useNavigation(userToken);
+
   const handleLogOut = () => {
     dispatch(clearUserToken());
-    navigate.push("/login");
-  };
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =
-    React.useState<null | HTMLElement>(null);
-
-  const isMenuOpen = Boolean(anchorEl);
-  const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
-
-  const handleMobileMenuClose = () => {
-    setMobileMoreAnchorEl(null);
+    router.push("/login");
   };
 
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-    handleMobileMenuClose();
+  const handleMobileMenuToggle = (event?: React.MouseEvent<HTMLElement>) => {
+    setMobileMenuAnchor(event?.currentTarget ?? null);
+  };
+  const handleCloseMobileMenu = () => {
+    setMobileMenuAnchor(null);
   };
 
-  const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setMobileMoreAnchorEl(event.currentTarget);
-  };
-
-  const menuId = "primary-search-account-menu";
-  const renderMenu = (
-    <Menu
-      anchorEl={anchorEl}
-      anchorOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
-      id={menuId}
-      keepMounted
-      transformOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
-      open={isMenuOpen}
-      onClose={handleMenuClose}
-    >
-      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-      <MenuItem onClick={handleMenuClose}>My account</MenuItem>
-    </Menu>
-  );
-
-  const mobileMenuId = "primary-search-account-menu-mobile";
-  const renderMobileMenu = (
-    <Menu
-      anchorEl={mobileMoreAnchorEl}
-      anchorOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
-      id={mobileMenuId}
-      keepMounted
-      transformOrigin={{
-        vertical: "top",
-        horizontal: "right",
-      }}
-      open={isMobileMenuOpen}
-      onClose={handleMobileMenuClose}
-    >
-      <MenuItem>
-        {!userToken && (
-          <Button
-            href="/register"
-            variant="text"
-            sx={{ color: "black", fontWeight: "600" }}
-          >
-            Register
-          </Button>
-        )}
-      </MenuItem>
-      <MenuItem>
-        {userToken ? (
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              flexDirection: "column",
-            }}
-          >
-            <Button
-              href="/"
-              variant="text"
-              sx={{ color: "black", fontWeight: "600" }}
-            >
-              Home
-            </Button>
-            <Button
-              href="/profile"
-              variant="text"
-              sx={{ color: "black", fontWeight: "600" }}
-            >
-              Profile
-            </Button>
-            <Button
-              onClick={handleLogOut}
-              variant="text"
-              sx={{ color: "black", fontWeight: "600" }}
-            >
-              Logout
-            </Button>
-          </Box>
-        ) : (
-          <Button
-            href="/login"
-            variant="text"
-            sx={{ color: "black", fontWeight: "600" }}
-          >
-            Login
-          </Button>
-        )}
-      </MenuItem>
-    </Menu>
-  );
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 900 && mobileMenuAnchor) {
+        setMobileMenuAnchor(null);
+      }
+    };
+  
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [mobileMenuAnchor]);
 
   return (
     <Box sx={{ flexGrow: 1, zIndex: "10" }}>
@@ -157,41 +64,22 @@ export default function NavBar() {
             </Typography>
           </Link>
           <Box sx={{ flexGrow: 1 }} />
-          <Box sx={{ display: { xs: "none", md: "flex" } }}>
-            {!userToken && (
-              <Button href="/register" variant="text" sx={{ color: "white" }}>
-                Register
-              </Button>
-            )}
-            {userToken ? (
-              <Box>
-                <Button href="/" variant="text" sx={{ color: "white" }}>
-                  Home
-                </Button>
-                <Button href="/profile" variant="text" sx={{ color: "white" }}>
-                  Profile
-                </Button>
-                <Button
-                  onClick={handleLogOut}
-                  variant="text"
-                  sx={{ color: "white" }}
-                >
-                  Logout
-                </Button>
-              </Box>
-            ) : (
-              <Button href="/login" variant="text" sx={{ color: "white" }}>
-                Login
-              </Button>
-            )}
-          </Box>
+          
+          {/* Desktop Navigation */}
+          <NavigationMenu
+            items={navigationItems}
+            onLogout={handleLogOut}
+            display={{ xs: "none", md: "flex" }}
+          />
+          
+          {/* Mobile Menu Icon */}
           <Box sx={{ display: { xs: "flex", md: "none" } }}>
             <IconButton
               size="large"
               aria-label="show more"
-              aria-controls={mobileMenuId}
+              aria-controls="mobile-navigation-menu"
               aria-haspopup="true"
-              onClick={handleMobileMenuOpen}
+              onClick={handleMobileMenuToggle}
               color="inherit"
             >
               <MoreIcon />
@@ -199,8 +87,15 @@ export default function NavBar() {
           </Box>
         </Toolbar>
       </AppBar>
-      {renderMobileMenu}
-      {renderMenu}
+      
+      {/* Mobile Navigation Menu */}
+      <NavigationMenu
+        items={navigationItems}
+        onLogout={handleLogOut}
+        anchorEl={mobileMenuAnchor}
+        onClose={handleCloseMobileMenu}
+        menuId="mobile-navigation-menu"
+      />
     </Box>
   );
 }
