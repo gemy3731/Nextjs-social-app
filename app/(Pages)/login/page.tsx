@@ -1,140 +1,134 @@
 "use client";
-import { useEffect, useState } from "react";
-import { Paper, TextField, Button, Typography, Box } from "@mui/material";
+import { useEffect } from "react";
+import { Paper, Typography, Box } from "@mui/material";
 import { useFormik } from "formik";
-import * as yup from "yup";
 import Link from "next/link";
-import axios from "axios";
-import { redirect, useRouter } from "next/navigation";
-import { useDispatch } from "react-redux";
-import { getUserToken } from "@/lib/Redux/tokenSlice/TokenSlice";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/UseAuth";
+import { LoginCredentials } from "@/types/auth.types";
+import { loginValidationSchema } from "@/schemas/authValidation";
+import { ErrorAlert } from "@/_components/shared/Erroralert";
+import { LoadingButton } from "@/_components/shared/Loadingbutton";
+import { FormField } from "@/_components/shared/ui/Formfield";
 
 export default function Login() {
-  const [isLoading, setIsloading] = useState(false);
-  const [isError, setIsError] = useState(null);
-  const navigate = useRouter();
-  const dispatch = useDispatch();
+  const router = useRouter();
+  const { isLoading, error, login, isAuthenticated, clearError } = useAuth();
+
   useEffect(() => {
-    if(localStorage.getItem("token")){
-      redirect('/')
+    if (isAuthenticated()) {
+      router.replace("/");
     }
-  }, []);
-  const onSubmit = (values: { email: string; password: string }) => {
-    setIsloading(true);
-    setIsError(null);
-    return axios
-      .post("https://linked-posts.routemisr.com/users/signin", values)
-      .then((res) => {
-        setIsloading(false);
-        localStorage.setItem("token", res.data.token);
-        dispatch(getUserToken(res.data.token));
-        navigate.push("/");
-      })
-      .catch((err) => {
-        setIsloading(false);
-        setIsError(err.response.data.error);
-        setTimeout(() => setIsError(null), 5000);
-      });
-  };
-  const formik = useFormik({
+  }, [isAuthenticated, router]);
+
+  const formik = useFormik<LoginCredentials>({
     initialValues: {
       email: "",
       password: "",
     },
-    onSubmit,
-    validationSchema: yup.object().shape({
-      email: yup.string().required("Email required").email("Invalid email"),
-      password: yup
-        .string()
-        .required("Password required")
-        .matches(
-          /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/,
-          "Incorrect Password"
-        ),
-    }),
+    validationSchema: loginValidationSchema,
+    onSubmit: async (values) => {
+      try {
+        await login(values);
+      } catch (err) {
+        console.error("Login error:", err);
+      }
+    },
   });
   return (
-    <div className="w-[60%] mx-auto mt-28">
-      {isError && (
-        <Box sx={{ textAlign: "center", mb: "10px" }}>
-          <Typography color="error">{isError}</Typography>
-        </Box>
-      )}
-      <Paper
-        variant="elevation"
-        square={false}
-        elevation={1}
+    <Box
+    sx={{
+      width: { xs: "90%", sm: "80%", md: "50%" },
+      mx: "auto",
+      mt: { xs: 12, md: 16 },
+      mb: 4,
+    }}
+  >
+
+    <ErrorAlert error={error} onClose={clearError} />
+
+    <Paper
+      elevation={3}
+      sx={{
+        p: { xs: 3, md: 4 },
+        backgroundColor: "#252728",
+        borderRadius: 2,
+      }}
+    >
+      <Typography
+        component="h1"
+        variant="h4"
         sx={{
-          p: "30px",
-          backgroundColor: "#252728",
-          boxShadow: "2px 2px 8px #252728,-2px -2px 8px #252728",
+          color: "white",
+          mb: 3,
+          fontWeight: 600,
         }}
       >
+        Login Now
+      </Typography>
+
+      <Box
+        component="form"
+        onSubmit={formik.handleSubmit}
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 2.5,
+        }}
+      >
+        <FormField
+          name="email"
+          label="Email"
+          type="email"
+          placeholder="Enter your email"
+          formik={formik}
+        />
+
+        <FormField
+          name="password"
+          label="Password"
+          type="password"
+          placeholder="Enter your password"
+          formik={formik}
+        />
+
         <Typography
-          component={"h2"}
-          variant="h4"
-          sx={{ color: "white", mb: "10px" }}
+          sx={{
+            color: "white",
+            mt: 1,
+          }}
         >
-          Login Now
-        </Typography>
-        <form
-          onSubmit={formik.handleSubmit}
-          className="flex flex-col gap-5 text-white "
-        >
-          <TextField
-            id="email"
-            name="email"
-            value={formik.values.email}
-            onChange={formik.handleChange}
-            label="Email..."
-            variant="outlined"
-            placeholder="Email"
-            type="email"
-            fullWidth
-            sx={{
-              input: { color: "white", "&::placeholder": { color: "gray" } },
+          Don&apos;t have an account?{" "}
+          <Link
+            href="/register"
+            style={{
+              color: "#3b82f6",
+              textDecoration: "none",
+              fontWeight: 600,
             }}
-            InputLabelProps={{ className: "!text-white" }}
-          />
-          {formik.errors.email && formik.touched.email && (
-            <Typography color="error">{formik.errors.email}</Typography>
-          )}
-          <TextField
-            id="password"
-            name="password"
-            value={formik.values.password}
-            onChange={formik.handleChange}
-            label="Password..."
-            variant="outlined"
-            placeholder="Password"
-            type="password"
-            fullWidth
-            sx={{
-              input: { color: "white", "&::placeholder": { color: "gray" } },
-            }}
-            InputLabelProps={{ className: "!text-white" }}
-          />
-          {formik.errors.password && formik.touched.password && (
-            <Typography color="error">{formik.errors.password}</Typography>
-          )}
-          <h3 className="mt-4">
-            Don&apos;t have an account?
-            <Link
-              href={"/register"}
-              className="text-blue-500 hover:text-blue-500 font-semibold ml-1"
-            >
-              Sign up
-            </Link>
-          </h3>
-          <Button
-            variant="contained"
-            type="submit"
-            sx={{ width: "fit-content", ml: "auto" }}
           >
-            {isLoading ? <i className="fa fa-spinner fa-spin"></i> : "Login"}
-          </Button>
-        </form>
-      </Paper>
-    </div>
+            Sign up
+          </Link>
+        </Typography>
+
+        <LoadingButton
+          type="submit"
+          variant="contained"
+          isLoading={isLoading}
+          loadingText="Logging in..."
+          sx={{
+            width: "fit-content",
+            ml: "auto",
+            px: 4,
+            py: 1.5,
+            textTransform: "none",
+            fontSize: "1rem",
+          }}
+        >
+          Login
+        </LoadingButton>
+      </Box>
+    </Paper>
+  </Box>
   );
 }

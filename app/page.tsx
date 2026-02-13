@@ -73,11 +73,11 @@ export default function Home() {
   const handleClose = () => {
     setOpen(false);
   };
-  useEffect(() => {
-    if (!localStorage.getItem("token")) {
-      redirect("/login");
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (!localStorage.getItem("token")) {
+  //     redirect("/login");
+  //   }
+  // }, []);
   const dispatch = useDispatch();
 
   useEffect(() => {
