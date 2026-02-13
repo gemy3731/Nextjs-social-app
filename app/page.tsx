@@ -1,65 +1,314 @@
-import Image from "next/image";
+"use client";
+import axios from "axios";
+import { useEffect, useRef, useState } from "react";
+import {
+  Box,
+  Input,
+  Typography,
+  Modal,
+  Button,
+  IconButton,
+} from "@mui/material";
+import { Grid } from "@mui/material";
+import { Post as PostInterface } from "./../interfaces/post.type";
+import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
+import { styled } from "@mui/system";
+import toast from "react-hot-toast";
+import { redirect } from "next/navigation";
+import { getUserToken } from "@/lib/Redux/tokenSlice/TokenSlice";
+import { useDispatch } from "react-redux";
+import Loader from "@/_components/Loader/Loader";
+import Posts from "@/_components/Posts/Posts";
+import SinglePost from "@/_components/SinglePost/SinglePost";
 
+const InputElement = styled("input", {
+    shouldForwardProp: (prop) =>
+    prop !== "ownerState" &&
+    prop !== "maxRows" &&
+    prop !== "minRows",
+})(
+  () => `
+  width:100%;
+  color:white;
+  background-color:#252728;
+  border-bottom:gray 1px solid;
+  padding:10px;
+  resize:none;
+  cursor:pointer;
+  &:focus{
+    outline:0
+  };
+`
+);
+const VisuallyHiddenInput = styled("input", {
+    shouldForwardProp: (prop) =>
+    prop !== "ownerState" &&
+    prop !== "maxRows" &&
+    prop !== "minRows",
+})({
+  height: "100%",
+  position: "absolute",
+  bottom: 0,
+  left: 0,
+  top: 0,
+  right: 0,
+  whiteSpace: "nowrap",
+  width: "100%",
+  opacity: 0,
+});
 export default function Home() {
+  const [posts, setPosts] = useState<PostInterface[]>([]);
+  const [page, setPage] = useState<number>(1);
+  const [singlePost, setSinglePost] = useState<PostInterface | null>(null);
+  const [open, setOpen] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [isPageLoading, setIsPageLoading] = useState<boolean>(false);
+  const removeFocus = useRef<HTMLInputElement>(null);
+  const postCaptionRef = useRef<HTMLInputElement>(null);
+  const postImgRef = useRef<HTMLInputElement>(null);
+  const handleOpen = () => {
+    setOpen(true);
+    removeFocus.current?.blur();
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
+  useEffect(() => {
+    if (!localStorage.getItem("token")) {
+      redirect("/login");
+    }
+  }, []);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+      dispatch(getUserToken(localStorage.getItem("token")));
+    }
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+   const getAllPosts = (page: number) => {
+    return axios
+      .get(`https://linked-posts.routemisr.com/posts?page=${page}`, {
+        headers: {
+          token: localStorage.getItem("token"),
+        },
+      })
+      .then((res) => res.data.posts)
+      .catch(() => {
+        toast.error("Something Went wrong", { position: "top-center" });
+      });
+  };
+  const loadMorePosts = async (page: number) => {
+    setLoading(true);
+    const newPosts = await getAllPosts(page);
+    setPosts((prevPosts) => [...prevPosts, ...newPosts]);
+    setLoading(false);
+  };
+   useEffect(() => {
+    loadMorePosts(page);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollHeight = document.documentElement.scrollHeight;
+      const scrollTop = document.documentElement.scrollTop;
+      const clientHeight = document.documentElement.clientHeight;
+
+      if (scrollTop + clientHeight >= scrollHeight - 10 && !loading) {
+        setPage((prevPage) => prevPage + 1);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [loading]);
+
+  const getSinglePost = (id: string): void => {
+    setIsPageLoading(true);
+    axios
+      .get(`https://linked-posts.routemisr.com/posts/${id}`, {
+        headers: {
+          token: localStorage.getItem("token"),
+        },
+      })
+      .then((res) => {
+        setSinglePost(res.data.post);
+        setIsPageLoading(false);
+      })
+      .catch(() => {
+        toast.error("Something Went wrong", { position: "top-center" });
+        setIsPageLoading(false);
+      });
+  };
+  const closePost = (): void => {
+    setSinglePost(null);
+  };
+  const createPost = () => {
+    const payLoad = new FormData();
+    const postCation = postCaptionRef.current?.value || "";
+    payLoad.append("body", postCation);
+
+    if (postImgRef.current?.files?.[0]) {
+      const postImg = postImgRef.current?.files[0];
+      payLoad.append("image", postImg);
+    }
+    setIsPageLoading(true);
+    axios
+      .post("https://linked-posts.routemisr.com/posts", payLoad, {
+        headers: {
+          token: localStorage.getItem("token"),
+        },
+      })
+      .then(() => {
+        toast.success("Post Created Successfully", { position: "top-right" });
+        setIsPageLoading(false);
+        setOpen(false);
+      })
+      .catch(() => {
+        toast.error("Something Went wrong", { position: "top-right" });
+        setOpen(false);
+        setIsPageLoading(false);
+      });
+  };
+  const createComment = (data: {
+    content: string;
+    post: string | undefined;
+  }) => {
+    axios
+      .post("https://linked-posts.routemisr.com/comments", data, {
+        headers: {
+          token: localStorage.getItem("token"),
+        },
+      })
+      .then(() => {
+        toast.success("Comment Created Successfully", { position: "top-right" });
+        setSinglePost(null);
+      })
+      .catch(() => {
+        toast.error("Something Went wrong", { position: "top-right" });
+      });
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <>
+      {isPageLoading && <Loader />}
+      <div className={singlePost ? "hidden" : ""}>
+        <Grid container spacing={3}>
+          <Grid
+            size={6}
+            sx={{ display: "flex", flexDirection: "column", gap: "20px" }}
+          >
+            <Box
+              onClick={handleOpen}
+              sx={{ bgcolor: "#252728", p: 2, cursor: "pointer" }}
+            >
+              <Typography component="h2" variant="h5" sx={{ color: "white" }}>
+                Create Post
+              </Typography>
+              <Input
+                inputRef={removeFocus}
+                onFocus={handleOpen}
+                title="Create Post"
+                slots={{ input: InputElement }}
+                fullWidth
+                multiline
+                disableUnderline
+                placeholder="What's on your mind?..."
+              />
+              <IconButton sx={{ mx: "auto", display: "block" }}>
+                <AddPhotoAlternateIcon
+                  titleAccess="Create Post"
+                  sx={{ color: "white" }}
+                />
+              </IconButton>
+            </Box>
+            {posts.map((post, i) => (
+              <Posts
+                key={post._id + "-" + `${i}`}
+                post={post}
+                getSinglePost={getSinglePost}
+              />
+            ))}
+            {loading && (
+              <i className="fa fa-spinner fa-spin text-[#252728] fa-2x mx-auto my-3"></i>
+            )}
+          </Grid>
+        </Grid>
+      </div>
+
+      <div
+        className={
+          singlePost ? "fixed top-0 bottom-0 left-0 right-0 z-50" : "hidden"
+        }
+      >
+        <SinglePost
+          singlePost={singlePost}
+          closePost={closePost}
+          createComment={createComment}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      </div>
+
+      {/* Create comment */}
+      <Modal
+        aria-labelledby="Create-comment"
+        aria-describedby="Create-comment"
+        open={open}
+        onClose={handleClose}
+        sx={{
+          mx: "auto",
+          mt: "100px",
+          width: "70%",
+          bgcolor: "rgb(0,0,0,0.6)",
+        }}
+      >
+        <Box sx={{ bgcolor: "#252728", p: 2 }}>
+          <Typography component="h2" variant="h5" sx={{ color: "white" }}>
+            Create Post
+          </Typography>
+          <Input
+            inputComponent="textarea"
+            inputRef={postCaptionRef}
+            title="Create Post"
+            slots={{ input: InputElement }}
+            fullWidth
+            multiline
+            disableUnderline
+            placeholder="What's on your mind?..."
+          />
+
+          <IconButton
+            sx={{
+              position: "relative",
+              width: "fit-content",
+              mx: "auto",
+              display: "block",
+              cursor: "pointer",
+            }}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+            <AddPhotoAlternateIcon
+              titleAccess="Attach Image"
+              sx={{
+                color: "white",
+              }}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            <VisuallyHiddenInput
+              ref={postImgRef}
+              type="file"
+              accept="image/*"
+              sx={{ cursor: "pointer" }}
+            />
+          </IconButton>
+
+          <Button
+            title="Create"
+            variant="contained"
+            onClick={createPost}
+            sx={{ width: "fit-content", ml: "auto", display: "block" }}
           >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+            Post
+          </Button>
+        </Box>
+      </Modal>
+    </>
   );
 }
