@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { NavigationItem } from "./types";
 
 
- const useNavigation = (userToken: string | null) => {
+ const useNavigation = (isAuthenticated: boolean) => {
   const navigationItems = useMemo<NavigationItem[]>(() => {
     const publicItems: NavigationItem[] = [
       { label: "Register", href: "/register" },
@@ -15,8 +15,8 @@ import { NavigationItem } from "./types";
       { label: "Logout", href: "#", action: "logout" },
     ];
 
-    return userToken ? authenticatedItems : publicItems;
-  }, [userToken]);
+    return isAuthenticated ? authenticatedItems : publicItems;
+  }, [isAuthenticated]);
 
   return { navigationItems };
 };

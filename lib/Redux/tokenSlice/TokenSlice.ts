@@ -9,7 +9,6 @@ const tokenSlice = createSlice({
     reducers:{
         clearUserToken:(state)=>{
             state.userToken=null
-            localStorage.removeItem("token")
         },
         getUserToken:(state,action)=>{
             state.userToken=action.payload

@@ -1,4 +1,4 @@
-import { comment as commentIntergace } from "@/interfaces/post.type";
+
 import {
   Avatar,
   Box,
@@ -13,7 +13,9 @@ import Image from "next/image";
 import avatarImg from "@/public/images/download.png";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import ReplyIcon from "@mui/icons-material/Reply";
-export default function Comment({ comment }: { comment: commentIntergace }) {
+import { Comment as CommentInterface } from "@/types/Post.types";
+
+export default function Comment({ comment }: { comment: CommentInterface }) {
   const dateComment: string = new Date(comment.createdAt).toDateString();
   return (
     <>

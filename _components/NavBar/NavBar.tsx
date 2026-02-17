@@ -8,27 +8,24 @@ import Typography from "@mui/material/Typography";
 import MoreIcon from "@mui/icons-material/MoreVert";
 import Image from "next/image";
 import LPLogo from "@/public/images/lp-logo.png";
-import { useDispatch, useSelector } from "react-redux";
-import { store } from "@/lib/Redux/Store";
-import { clearUserToken } from "@/lib/Redux/tokenSlice/TokenSlice";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import NavigationMenu  from "./NavigationMenu";
+import NavigationMenu from "./NavigationMenu";
 import useNavigation from "./useNavigation";
+import { useAuth } from "@/hooks/UseAuth";
 
 export default function NavBar() {
-  const { userToken } = useSelector(
-    (reduxStore: ReturnType<typeof store.getState>) =>
-      reduxStore.userTokenReducer
-  );
-  const [mobileMenuAnchor, setMobileMenuAnchor] = useState<null | HTMLElement>(null);
-  const dispatch = useDispatch();
-  const router = useRouter();
-  const { navigationItems } = useNavigation(userToken);
 
+  const [mobileMenuAnchor, setMobileMenuAnchor] = useState<null | HTMLElement>(
+    null
+  );
+
+  const { logout, isAuthenticated } = useAuth();
+  const router = useRouter();
+  const { navigationItems } = useNavigation(isAuthenticated());
   const handleLogOut = () => {
-    dispatch(clearUserToken());
+    logout();
     router.push("/login");
   };
 
@@ -45,7 +42,7 @@ export default function NavBar() {
         setMobileMenuAnchor(null);
       }
     };
-  
+
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, [mobileMenuAnchor]);
@@ -64,14 +61,14 @@ export default function NavBar() {
             </Typography>
           </Link>
           <Box sx={{ flexGrow: 1 }} />
-          
+
           {/* Desktop Navigation */}
           <NavigationMenu
             items={navigationItems}
             onLogout={handleLogOut}
             display={{ xs: "none", md: "flex" }}
           />
-          
+
           {/* Mobile Menu Icon */}
           <Box sx={{ display: { xs: "flex", md: "none" } }}>
             <IconButton
@@ -87,7 +84,7 @@ export default function NavBar() {
           </Box>
         </Toolbar>
       </AppBar>
-      
+
       {/* Mobile Navigation Menu */}
       <NavigationMenu
         items={navigationItems}

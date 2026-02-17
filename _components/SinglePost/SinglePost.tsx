@@ -8,7 +8,7 @@ import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import { Post as PostInterface } from "@/interfaces/post.type";
+import { Post } from "@/types/Post.types";
 import Image from "next/image";
 import {
   Avatar,
@@ -49,7 +49,7 @@ export default function SinglePost({
   createComment,
 }: {
   window?: () => Window;
-  singlePost: PostInterface | null;
+  singlePost: Post | null;
   closePost: () => void;
   createComment: (data: { content: string; post: string | undefined }) => void;
 }) {
@@ -157,7 +157,7 @@ export default function SinglePost({
       </Paper>
       <Divider />
       <Box sx={{ minHeight: "100vh" }}>
-        {singlePost?.comments.map((comment, i) => (
+        {singlePost?.comments?.map((comment, i) => (
           <Comment key={i} comment={comment} />
         ))}
       </Box>

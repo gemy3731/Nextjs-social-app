@@ -13,10 +13,11 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import ShareIcon from "@mui/icons-material/Share";
 import CommentIcon from "@mui/icons-material/Comment";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { Post as PostInterface } from "@/interfaces/post.type";
+
 import { Box, Input } from "@mui/material";
 import Image from "next/image";
 import avatarImg from '@/public/images/download.png'
+import { Post as PostInterface } from "@/types/Post.types";
 interface ExpandMoreProps extends IconButtonProps {
   expand: boolean;
 }
@@ -32,7 +33,7 @@ const ExpandMore = styled((props: ExpandMoreProps) => {
     transform: expand ? "rotate(180deg)" : "rotate(0deg)",
 }));
 
-export default function Posts({ post,getSinglePost }: { post: PostInterface;getSinglePost:(id: string)=> void  }) {
+export default function Posts({ post,getSinglePost }: { post:PostInterface ;getSinglePost:(id: string)=> void  }) {
   const [expanded, setExpanded] = React.useState(false);
   
   const handleExpandClick = () => {
@@ -40,7 +41,7 @@ export default function Posts({ post,getSinglePost }: { post: PostInterface;getS
   };
   const date = new Date(post.createdAt).toDateString();
   const dateComment: string = new Date(
-    post.comments[0]?.createdAt
+    post.comments?.[0].createdAt || ""
   ).toDateString();
   return (
     <>
@@ -109,7 +110,7 @@ export default function Posts({ post,getSinglePost }: { post: PostInterface;getS
         </IconButton>
       </CardActions>
       <Collapse in={expanded} timeout="auto" unmountOnExit>
-        {post.comments[0] && (
+        {post.comments?.[0] && (
           <CardContent>
             <Box>
               <CardHeader

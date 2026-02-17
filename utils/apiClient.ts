@@ -1,4 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
+import { TokenCookie } from "./cookies";
 
 class ApiClient {
   private client: AxiosInstance;
@@ -12,14 +13,21 @@ class ApiClient {
       headers: {
         "Content-Type": "application/json",
       },
+      withCredentials: false
     });
 
     this.setupInterceptors();
   }
 
   private setupInterceptors(): void {
+    // Request interceptor - add auth token if available
     this.client.interceptors.request.use(
       (config) => {
+        const token = TokenCookie.get();
+        if (token) {
+          // Add token header (check your API's expected header name)
+          config.headers.token = token;
+        }
         return config;
       },
       (error) => {
@@ -31,14 +39,17 @@ class ApiClient {
       (response) => response,
       (error) => {
         if (error.response?.status === 401) {
-          if (typeof window !== "undefined") {
+          const isAuthRequest = 
+            error.config?.url?.includes('/signin') || 
+            error.config?.url?.includes('/signup') ||
+            error.config?.url?.includes('/register');
+          if (!isAuthRequest && typeof window !== "undefined") {
             const isAuthPage =
               window.location.pathname === "/login" ||
               window.location.pathname === "/register";
 
             if (!isAuthPage) {
-              document.cookie =
-                "token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+              TokenCookie.remove();
               window.location.href = "/login";
             }
           }
