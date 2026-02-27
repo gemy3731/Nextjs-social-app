@@ -72,7 +72,7 @@ export const CreatePostModal = ({
       onClose();
       onSuccess?.();
     } catch (err) {
-      // Error handled by hook
+      console.log("Error creating post:", err);
     }
   };
 

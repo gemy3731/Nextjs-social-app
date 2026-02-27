@@ -5,28 +5,19 @@ import {
   CreatePostData,
   CreateCommentData,
 } from "@/types/Post.types";
-import { TokenCookie } from "../utils/cookies";
 import { apiClient } from "@/utils/apiClient";
 
 
 export class PostsRepository {
-  private readonly basePath = "/posts";
-  private readonly commentsPath = "/comments";
+  private readonly basePath = "/post";
+  private readonly commentsPath = "/comment";
 
 
-  private getAuthHeader() {
-    const token = TokenCookie.get();
-    return token ? { token } : {};
-  }
 
 
   async getPosts(page: number = 1): Promise<Post[]> {
     try {
-      const response = await apiClient.get<PostsResponse>(
-        `${this.basePath}?page=${page}`,
-        {
-          headers: this.getAuthHeader(),
-        }
+      const response = await apiClient.get<PostsResponse>(`${this.basePath}?page=${page}`
       );
       return response.posts;
     } catch (error) {
@@ -36,12 +27,7 @@ export class PostsRepository {
 
   async getPostById(id: string): Promise<Post> {
     try {
-      const response = await apiClient.get<SinglePostResponse>(
-        `${this.basePath}/${id}`,
-        {
-          headers: this.getAuthHeader(),
-        }
-      );
+      const response = await apiClient.get<SinglePostResponse>(`${this.basePath}/${id}`);
       return response.post;
     } catch (error) {
       throw this.handleError(error);
@@ -57,66 +43,17 @@ export class PostsRepository {
         formData.append("image", data.image);
       }
 
-      const response = await apiClient.post<{ post: Post }>(
-        this.basePath,
-        formData,
-        {
-          headers: {
-            ...this.getAuthHeader(),
-            // Let browser set Content-Type for FormData
-          },
-        }
-      );
+      const response = await apiClient.post<{ post: Post }>(this.basePath,formData);
       return response.post;
     } catch (error) {
       throw this.handleError(error);
     }
   }
 
-//   async updatePost(id: string, data: Partial<CreatePostData>): Promise<Post> {
-//     try {
-//       const formData = new FormData();
-      
-//       if (data.body) {
-//         formData.append("body", data.body);
-//       }
-      
-//       if (data.image) {
-//         formData.append("image", data.image);
-//       }
-
-//       const response = await apiClient.put<{ post: Post }>(
-//         `${this.basePath}/${id}`,
-//         formData,
-//         {
-//           headers: this.getAuthHeader(),
-//         }
-//       );
-//       return response.post;
-//     } catch (error) {
-//       throw this.handleError(error);
-//     }
-//   }
-
-//   async deletePost(id: string): Promise<void> {
-//     try {
-//       await apiClient.delete(`${this.basePath}/${id}`, {
-//         headers: this.getAuthHeader(),
-//       });
-//     } catch (error) {
-//       throw this.handleError(error);
-//     }
-//   }
 
   async createComment(data: CreateCommentData): Promise<Comment> {
     try {
-      const response = await apiClient.post<{ comment: Comment }>(
-        this.commentsPath,
-        data,
-        {
-          headers: this.getAuthHeader(),
-        }
-      );
+      const response = await apiClient.post<{ comment: Comment }>(`${this.basePath}/${data.post}/${this.commentsPath}`,data.content);
       return response.comment;
     } catch (error) {
       throw this.handleError(error);

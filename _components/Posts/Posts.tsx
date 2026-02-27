@@ -23,7 +23,8 @@ interface ExpandMoreProps extends IconButtonProps {
 }
 
 const ExpandMore = styled((props: ExpandMoreProps) => {
-  const {expand, ...other } = props;
+  //eslint-disable-next-line
+  const { expand,...other } = props;
   return <IconButton {...other} />;
 })(({ theme,expand  }) => ({
   marginLeft: "auto",
@@ -41,7 +42,7 @@ export default function Posts({ post,getSinglePost }: { post:PostInterface ;getS
   };
   const date = new Date(post.createdAt).toDateString();
   const dateComment: string = new Date(
-    post.comments?.[0].createdAt || ""
+    post.comments?.length > 0 ? post.comments[0].createdAt : ""
   ).toDateString();
   return (
     <>
@@ -50,7 +51,7 @@ export default function Posts({ post,getSinglePost }: { post:PostInterface ;getS
         avatar={
           <Avatar sx={{ cursor: "pointer" }} aria-label="recipe">
             <Image
-              src={post.user.photo??avatarImg}
+              src={avatarImg}
               alt={post.user.name}
               width={50}
               height={50}
@@ -79,7 +80,7 @@ export default function Posts({ post,getSinglePost }: { post:PostInterface ;getS
 
       <CardContent>
         <Typography variant="body2" sx={{ color: "white" }}>
-          {post.body}
+          {post.body &&post.body}
         </Typography>
       </CardContent>
       {post.image && (
@@ -121,7 +122,7 @@ export default function Posts({ post,getSinglePost }: { post:PostInterface ;getS
                     aria-label="recipe"
                   >
                     <Image
-                      src={post.comments[0]?.commentCreator.photo??avatarImg}
+                      src={avatarImg}
                       alt={post.comments[0]?.commentCreator.name}
                       width={30}
                       height={30}

@@ -10,8 +10,6 @@ import { NavigationItem } from "./types";
     ];
 
     const authenticatedItems: NavigationItem[] = [
-      { label: "Home", href: "/" },
-      { label: "Profile", href: "/profile" },
       { label: "Logout", href: "#", action: "logout" },
     ];
 

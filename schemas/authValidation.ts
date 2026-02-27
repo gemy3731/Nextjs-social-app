@@ -6,7 +6,7 @@ export const loginValidationSchema =yup.object().shape({
         .string()
         .required("Password required")
         .matches(
-          /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/,
+          /^[a-zA-Z0-9]{3,30}$/,
           "Incorrect Password"
         ),
     })
@@ -22,7 +22,7 @@ export const registerValidationSchema =yup.object().shape({
         .string()
         .required("Password required")
         .matches(
-          /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/,
+          /^[a-zA-Z0-9]{3,30}$/,
           "Password should contain at least 8 Characters => 1 capital letter, 1 small letter, 1 digit and 1 special character"
         ),
       rePassword: yup

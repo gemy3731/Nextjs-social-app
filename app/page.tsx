@@ -39,7 +39,7 @@ export default function Home() {
 
   // Authentication check
   useEffect(() => {
-    if (!isAuthenticated()) {
+    if (!isAuthenticated) {
       router.push("/login");
     }
   }, [isAuthenticated, router]);
@@ -59,7 +59,7 @@ export default function Home() {
   const handleClosePost = () => {
     closePost();
   };
-
+console.log("posts",posts)
   const handleCreateComment = async (data: { content: string; post: string | undefined }) => {
     if (!data.post) return;
 
@@ -69,8 +69,9 @@ export default function Home() {
         post: data.post,
       });
       closePost();
-    } catch (err) {
+    } catch(error) {
       // Error handled by hook
+      console.log("Error creating comment:", error);
     }
   };
 

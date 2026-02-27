@@ -1,20 +1,7 @@
 import { useRef } from "react";
 import { Box, Typography, Input, IconButton } from "@mui/material";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
-import { styled } from "@mui/system";
 
-const InputElement = styled("input")(() => `
-  width: 100%;
-  color: white;
-  background-color: #252728;
-  border-bottom: gray 1px solid;
-  padding: 10px;
-  resize: none;
-  cursor: pointer;
-  &:focus {
-    outline: 0;
-  }
-`);
 
 interface CreatePostTriggerProps {
   onClick: () => void;
@@ -49,7 +36,12 @@ export const CreatePostTrigger = ({ onClick }: CreatePostTriggerProps) => {
         inputRef={removeFocus}
         onFocus={handleClick}
         title="Create Post"
-        slots={{ input: InputElement }}
+        sx={{
+          color: "white",
+          backgroundColor: "#252728",
+          borderBottom: "1px solid gray",
+          px: 1,
+        }}
         fullWidth
         multiline
         disableUnderline

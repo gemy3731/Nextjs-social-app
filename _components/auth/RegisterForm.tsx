@@ -13,14 +13,14 @@ import { LoadingButton } from "../shared/Loadingbutton";
  
 interface RegisterFormProps {
   register: (credentials: RegisterCredentials) => Promise<AuthResponse>;
-  isAuthenticated: () => boolean;
+  isAuthenticated: boolean;
   isLoading: boolean;
 }
 const RegisterForm = ({ register, isAuthenticated, isLoading }: RegisterFormProps) => {
   const router = useRouter();
 
   useEffect(() => {
-    if (isAuthenticated()) {
+    if (isAuthenticated) {
       router.replace("/");
     }
   }, [isAuthenticated, router]);
@@ -35,7 +35,6 @@ const RegisterForm = ({ register, isAuthenticated, isLoading }: RegisterFormProp
       gender: "",
     },
     onSubmit: async (values) => {
-      console.log("values", values);
       try {
         await register(values);
       } catch (err) {

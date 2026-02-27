@@ -17,17 +17,19 @@ export interface LoginCredentials {
   
   export interface AuthResponse {
     token: string;
-    user?: {
-      id: string;
-      email: string;
-      name: string;
-    };
+    user?: User;
   }
   
   export interface ApiError {
     error: string;
     message?: string;
     statusCode?: number;
+  }
+
+  export interface User{
+    id: string;
+    email: string;
+    name: string;
   }
   
   export enum AuthErrorType {

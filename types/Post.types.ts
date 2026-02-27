@@ -5,10 +5,9 @@ export interface Post {
     user: {
       _id: string;
       name: string;
-      photo?: string;
     };
     createdAt: string;
-    comments?: Comment[];
+    comments: Comment[];
     likes?: string[];
   }
   
@@ -18,7 +17,6 @@ export interface Post {
     commentCreator: {
       _id: string;
       name: string;
-      photo?: string;
     };
     post: string;
     createdAt: string;

@@ -5,9 +5,9 @@ const nextConfig: NextConfig = {
         remotePatterns: [
           {
             protocol: 'https',
-            hostname: 'linked-posts.routemisr.com',
+            hostname: 'res.cloudinary.com',
             port: '',
-            pathname: '/uploads/**',
+            pathname: '/djnarqgls/**',
           },
         ],
       },

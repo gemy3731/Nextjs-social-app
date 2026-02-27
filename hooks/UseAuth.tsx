@@ -1,9 +1,9 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useDispatch } from "react-redux";
-import { getUserToken, clearUserToken } from "@/lib/Redux/tokenSlice/TokenSlice";
+import { useDispatch, useSelector } from "react-redux";
 import { LoginCredentials, RegisterCredentials } from "@/types/auth.types";
 import { authService } from "@/services/Authservice";
+import { AuthState, clearUser } from "@/lib/Redux/userSlice/userSlice";
 
 
 export const useAuth = () => {
@@ -11,7 +11,7 @@ export const useAuth = () => {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const dispatch = useDispatch();
-
+  const user = useSelector((state: { userReducer: AuthState }) => state.userReducer);
 
   const login = useCallback(
     async (credentials: LoginCredentials) => {
@@ -19,8 +19,6 @@ export const useAuth = () => {
       setError(null);
       try {
         const response = await authService.login(credentials);
-        
-        dispatch(getUserToken(response.token));
         
         router.push("/");
         
@@ -37,7 +35,7 @@ export const useAuth = () => {
         setIsLoading(false);
       }
     },
-    [dispatch, router]
+    [ router]
   );
 
   const register = useCallback(
@@ -48,7 +46,6 @@ export const useAuth = () => {
       try {
         const response = await authService.register(credentials);
         
-        dispatch(getUserToken(response.token));
         
         router.push("/");
         
@@ -65,7 +62,7 @@ export const useAuth = () => {
         setIsLoading(false);
       }
     },
-    [dispatch, router]
+    [ router]
   );
 
   const logout = useCallback(async () => {
@@ -75,7 +72,7 @@ export const useAuth = () => {
     try {
       await authService.logout();
       
-      dispatch(clearUserToken());
+      dispatch(clearUser());
       
       router.push("/login");
       //eslint-disable-next-line
@@ -90,9 +87,7 @@ export const useAuth = () => {
   }, [dispatch, router]);
 
 
-  const isAuthenticated = useCallback(() => {
-    return authService.isAuthenticated();
-  }, []);
+  const isAuthenticated = Boolean(user);
 
 
   const clearError = useCallback(() => {

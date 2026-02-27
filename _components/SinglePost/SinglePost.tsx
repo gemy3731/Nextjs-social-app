@@ -92,7 +92,7 @@ export default function SinglePost({
             aria-label="recipe"
           >
             <Image
-              src={singlePost?.user.photo ?? avatarImg}
+              src={ avatarImg}
               alt={singlePost?.user.name ?? "Anonymous"}
               width={30}
               height={30}

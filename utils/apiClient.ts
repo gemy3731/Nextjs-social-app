@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
-import { TokenCookie } from "./cookies";
+
 
 class ApiClient {
   private client: AxiosInstance;
@@ -13,35 +13,19 @@ class ApiClient {
       headers: {
         "Content-Type": "application/json",
       },
-      withCredentials: false
+      withCredentials: true
     });
 
     this.setupInterceptors();
   }
 
   private setupInterceptors(): void {
-    // Request interceptor - add auth token if available
-    this.client.interceptors.request.use(
-      (config) => {
-        const token = TokenCookie.get();
-        if (token) {
-          // Add token header (check your API's expected header name)
-          config.headers.token = token;
-        }
-        return config;
-      },
-      (error) => {
-        return Promise.reject(error);
-      }
-    );
-
     this.client.interceptors.response.use(
       (response) => response,
       (error) => {
         if (error.response?.status === 401) {
           const isAuthRequest = 
-            error.config?.url?.includes('/signin') || 
-            error.config?.url?.includes('/signup') ||
+            error.config?.url?.includes('/login') || 
             error.config?.url?.includes('/register');
           if (!isAuthRequest && typeof window !== "undefined") {
             const isAuthPage =
@@ -49,7 +33,6 @@ class ApiClient {
               window.location.pathname === "/register";
 
             if (!isAuthPage) {
-              TokenCookie.remove();
               window.location.href = "/login";
             }
           }
@@ -101,5 +84,5 @@ class ApiClient {
 }
 
 export const apiClient = new ApiClient(
-  process.env.NEXT_PUBLIC_API_BASE_URL || "https://linked-posts.routemisr.com"
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000"
 );

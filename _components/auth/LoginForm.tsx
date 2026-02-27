@@ -12,13 +12,13 @@ import { AuthResponse, LoginCredentials } from "@/types/auth.types";
 
 interface LoginFormProps {
   login: (credentials: LoginCredentials) => Promise<AuthResponse>;
-  isAuthenticated: () => boolean;
+  isAuthenticated: boolean;
   isLoading: boolean;
 }
 const LoginForm = ({ login, isAuthenticated, isLoading }: LoginFormProps) => {
   const router = useRouter();
   useEffect(() => {
-    if (isAuthenticated()) {
+    if (isAuthenticated) {
       router.replace("/");
     }
   }, [isAuthenticated, router]);

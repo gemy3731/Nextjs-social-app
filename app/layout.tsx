@@ -8,6 +8,7 @@ import { ThemeProvider } from "@mui/material/styles";
 import { Toaster } from "react-hot-toast";
 import NavBar from "@/_components/NavBar/NavBar";
 import theme from "@/theme";
+import AuthInitializer from "@/_components/auth/AuthInitializer";
 
 
 
@@ -32,6 +33,7 @@ export default function RootLayout({
               </ThemeProvider>
             </AppRouterCacheProvider>
           </div>
+          <AuthInitializer />
         </Provider>
       </body>
     </html>

@@ -10,20 +10,21 @@ import Image from "next/image";
 import LPLogo from "@/public/images/lp-logo.png";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import NavigationMenu from "./NavigationMenu";
 import useNavigation from "./useNavigation";
 import { useAuth } from "@/hooks/UseAuth";
 
 export default function NavBar() {
-
   const [mobileMenuAnchor, setMobileMenuAnchor] = useState<null | HTMLElement>(
     null
   );
 
   const { logout, isAuthenticated } = useAuth();
+
   const router = useRouter();
-  const { navigationItems } = useNavigation(isAuthenticated());
+
+  const { navigationItems } = useNavigation(isAuthenticated);
   const handleLogOut = () => {
     logout();
     router.push("/login");
@@ -63,11 +64,13 @@ export default function NavBar() {
           <Box sx={{ flexGrow: 1 }} />
 
           {/* Desktop Navigation */}
-          <NavigationMenu
-            items={navigationItems}
-            onLogout={handleLogOut}
-            display={{ xs: "none", md: "flex" }}
-          />
+          <Suspense fallback={<div>Loading...</div>}>
+            <NavigationMenu
+              items={navigationItems}
+              onLogout={handleLogOut}
+              display={{ xs: "none", md: "flex" }}
+            />
+          </Suspense>
 
           {/* Mobile Menu Icon */}
           <Box sx={{ display: { xs: "flex", md: "none" } }}>
