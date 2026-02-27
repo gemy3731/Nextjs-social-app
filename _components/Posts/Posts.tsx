@@ -1,4 +1,3 @@
-import * as React from "react";
 import { styled } from "@mui/material/styles";
 import Card from "@mui/material/Card";
 import CardHeader from "@mui/material/CardHeader";
@@ -18,6 +17,7 @@ import { Box, Input } from "@mui/material";
 import Image from "next/image";
 import avatarImg from '@/public/images/download.png'
 import { Post as PostInterface } from "@/types/Post.types";
+import { useState } from "react";
 interface ExpandMoreProps extends IconButtonProps {
   expand: boolean;
 }
@@ -35,7 +35,7 @@ const ExpandMore = styled((props: ExpandMoreProps) => {
 }));
 
 export default function Posts({ post,getSinglePost }: { post:PostInterface ;getSinglePost:(id: string)=> void  }) {
-  const [expanded, setExpanded] = React.useState(false);
+  const [expanded, setExpanded] = useState(false);
   
   const handleExpandClick = () => {
     setExpanded(!expanded);

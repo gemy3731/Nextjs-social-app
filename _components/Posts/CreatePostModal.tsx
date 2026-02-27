@@ -65,14 +65,13 @@ export const CreatePostModal = ({
     try {
       await createPost({ body, image });
       
-      // Reset form
       if (postCaptionRef.current) postCaptionRef.current.value = "";
       if (postImgRef.current) postImgRef.current.value = "";
       
       onClose();
       onSuccess?.();
     } catch (err) {
-      console.log("Error creating post:", err);
+      console.error("Error creating post:", err);
     }
   };
 

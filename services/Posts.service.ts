@@ -28,8 +28,8 @@ export class PostsService {
 
   async createPost(data: CreatePostData): Promise<Post> {
     try {
-      // Validation can be added here
-      if (!data.body || data.body.trim().length === 0) {
+
+      if ((!data.body || data.body.trim().length === 0)&& !data.image) {
         throw new Error("Post content cannot be empty");
       }
 
@@ -39,25 +39,10 @@ export class PostsService {
     }
   }
 
-//   async updatePost(id: string, data: Partial<CreatePostData>): Promise<Post> {
-//     try {
-//       return await postsRepository.updatePost(id, data);
-//     } catch (error) {
-//       throw error;
-//     }
-//   }
-
-//   async deletePost(id: string): Promise<void> {
-//     try {
-//       await postsRepository.deletePost(id);
-//     } catch (error) {
-//       throw error;
-//     }
-//   }
 
   async createComment(data: CreateCommentData): Promise<Comment> {
     try {
-      // Validation
+
       if (!data.content || data.content.trim().length === 0) {
         throw new Error("Comment content cannot be empty");
       }
@@ -72,14 +57,6 @@ export class PostsService {
     }
   }
 
-  async loadMorePosts(currentPosts: Post[], page: number): Promise<Post[]> {
-    try {
-      const newPosts = await this.getPosts(page);
-      return [...currentPosts, ...newPosts];
-    } catch (error) {
-      throw error;
-    }
-  }
 }
 
 export const postsService = new PostsService();

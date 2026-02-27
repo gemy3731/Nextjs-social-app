@@ -29,7 +29,7 @@ export default function Comment({ comment }: { comment: CommentInterface }) {
                 aria-label="recipe"
               >
                 <Image
-                  src={comment.commentCreator.photo ?? avatarImg}
+                  src={ avatarImg}
                   alt={comment.commentCreator.name}
                   width={30}
                   height={30}

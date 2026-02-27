@@ -11,6 +11,11 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      experimental: {
+        cssChunking: true,
+        optimizeCss: true,
+        inlineCss: true,
+      }
 };
 
 export default nextConfig;

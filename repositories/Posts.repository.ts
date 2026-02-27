@@ -37,12 +37,14 @@ export class PostsRepository {
   async createPost(data: CreatePostData): Promise<Post> {
     try {
       const formData = new FormData();
-      formData.append("body", data.body);
+      if(data.body){
+        formData.append("body", data.body);
+      }
       
       if (data.image) {
         formData.append("image", data.image);
       }
-
+      
       const response = await apiClient.post<{ post: Post }>(this.basePath,formData);
       return response.post;
     } catch (error) {
@@ -53,7 +55,7 @@ export class PostsRepository {
 
   async createComment(data: CreateCommentData): Promise<Comment> {
     try {
-      const response = await apiClient.post<{ comment: Comment }>(`${this.basePath}/${data.post}/${this.commentsPath}`,data.content);
+      const response = await apiClient.post<{ comment: Comment }>(`${this.basePath}/${data.post}${this.commentsPath}`,{content:data.content});
       return response.comment;
     } catch (error) {
       throw this.handleError(error);

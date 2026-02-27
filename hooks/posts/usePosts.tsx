@@ -3,11 +3,15 @@ import { Post } from "@/types/Post.types";
 import { useCallback, useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 
- const usePosts = () => {
-    const [posts, setPosts] = useState<Post[]>([]);
-    const [page, setPage] = useState<number>(1);
+interface UsePostsOptions {
+  initialPosts?: Post[];
+  initialHasMore?: boolean;
+}
+ const usePosts = ({ initialPosts = [], initialHasMore = true }: UsePostsOptions = {}) => {
+    const [posts, setPosts] = useState<Post[]>(initialPosts );
+    const [page, setPage] = useState<number>(initialPosts.length > 0 ? 2 : 1);
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [hasMore, setHasMore] = useState<boolean>(true);
+    const [hasMore, setHasMore] = useState<boolean>(initialHasMore);
     const [error, setError] = useState<string | null>(null);
   
     const isLoadingRef = useRef(false);
@@ -58,7 +62,10 @@ import toast from "react-hot-toast";
   
   
     useEffect(() => {
+
+      if (page === 1 && initialPosts.length > 0) return;
       loadPosts(page);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [page, loadPosts]);
   
     return {
