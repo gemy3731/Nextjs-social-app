@@ -86,8 +86,7 @@ export const useAuth = () => {
     }
   }, [dispatch, router]);
 
-
-  const isAuthenticated = Boolean(user);
+  const isAuthenticated = Boolean(user.user);
 
 
   const clearError = useCallback(() => {
